@@ -58,4 +58,4 @@ print("=" * 60)
 preview_df = pd.DataFrame(X[:3, :8], columns=feature_names[:8])
 print(preview_df)
 
-print("\n✅ Preprocessing complete. Ready for train/test split (Step 4).")
+print("\n✅ Preprocessing complete. Ready for train/test split.")
