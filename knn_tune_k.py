@@ -70,8 +70,11 @@ plt.plot(ks, precs, marker='s', label='Precision', linewidth=2)
 plt.plot(ks, recs, marker='^', label='Recall', linewidth=2)
 plt.plot(ks, f1s, marker='d', label='F1 Score', linewidth=2)
 
-plt.axvline(x=best_f1['k'], color='red', linestyle='--', alpha=0.5,
-            label=f"Best F1 at k={best_f1['k']}")
+# k=3 is the raw F1 max (0.489), but k=7 (F1 0.472) is our chosen model: it has
+# much higher precision (0.70 vs 0.60), which is the metric we optimize for.
+CHOSEN_K = 7
+plt.axvline(x=CHOSEN_K, color='red', linestyle='--', alpha=0.6,
+            label=f'Chosen: k={CHOSEN_K}')
 
 plt.title('kNN Performance vs k (Online Shoppers Dataset)', fontsize=13)
 plt.xlabel('k (number of neighbors)')

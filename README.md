@@ -23,14 +23,14 @@ The final model performance was evaluated using a testing set and validated thro
 
 | Metric        | Test set (k=7) | 5-fold CV (mean ± std)      |
 |---------------|----------------|-----------------------------|
-| Accuracy      | **0.8767**     | (As reported in `final_evaluation.py`) |
-| Precision     | 0.6974         | (As reported in `final_evaluation.py`) |
-| Recall        | 0.3570         | (As reported in `final_evaluation.py`) |
-| F1 Score      | 0.4722         | (As reported in `final_evaluation.py`) |
+| Accuracy      | **0.8767**     | 0.8740 ± 0.0033 |
+| Precision     | 0.6974         | 0.6865 ± 0.0235 |
+| Recall        | 0.3570         | 0.3417 ± 0.0124 |
+| F1 Score      | 0.4722         | 0.4562 ± 0.0149 |
 
-- **Best k by F1 Score:** k = 7 (Optimized for balance between Precision and Recall; see [k_tuning_results.csv](k_tuning_results.csv))
+- **Best k by F1 Score:** k = 3 (F1 = 0.4892). We **selected k = 7** (F1 = 0.4722) instead, trading a negligible amount of F1 for substantially higher precision (0.6974 vs 0.5962); see [k_tuning_results.csv](k_tuning_results.csv).
 - **Best k by Accuracy:** k = 21 (Favors the majority class)
-- **Baselines Beaten:** The model successfully outperforms the naive majority-class baseline (always predicting "no-purchase") and a simple rule-based approach ("PageValues > 0" implies purchase) as shown in [final_evaluation.py](final_evaluation.py).
+- **Baseline Comparison:** kNN decisively beats the majority-class baseline (always "no-purchase", 0.0 F1). However, a single-feature rule — predict "purchase" when `PageValues` exceeds the training mean — **outperforms our kNN on F1 (0.6819 vs 0.4722) and recall (0.7428 vs 0.3570)**, losing only on precision. This is one of our key findings; see Key Takeaways and [final_evaluation.py](final_evaluation.py).
 
 ---
 
@@ -139,7 +139,7 @@ The pipeline is modular. Each script reads/writes `.npy` artifacts, ensuring ste
 - **5-Fold Stratified Cross-Validation:** To validate the robustness of our selected `k = 7`, we implemented a 5-fold CV algorithm. Each fold maintains the exact class balance of the original dataset.
 - **Baseline Comparisons:**
   - *Majority-Class Baseline:* Always predicts "no-purchase". Yields high accuracy but 0% recall and an undefined/zero F1-score.
-  - *Rule-Based Baseline:* Predicts "purchase" if `PageValues > 0`. A highly effective simple heuristic.
+  - *Rule-Based Baseline:* Predicts "purchase" when a session's `PageValues` exceeds the **training mean** (coded as `PageValues > 0` on standardized features). This single-feature heuristic is remarkably strong — it **outperforms the full kNN on F1 and recall** (0.6819 / 0.7428 vs 0.4722 / 0.3570). See Key Takeaways for why.
 - The confusion matrix for our optimal test set predictions is visualized in [fig8_final_confusion_matrix.png](fig8_final_confusion_matrix.png).
 
 ---
@@ -176,7 +176,7 @@ python final_evaluation.py
 
 Because intermediate steps are cached as `.npy` binaries, you can safely skip the preprocessing and split scripts (Steps 3 and 4) if you just want to experiment with tuning or evaluation.
 
-> **Runtime Note:** K-Nearest Neighbors prediction is computationally intensive, scaling at $O(n_{train} \times n_{test} \times d)$ for each test phase, as there is no initial "training" phase. On a standard machine, the comprehensive 30-step k-sweep takes approximately 30–60 seconds. Individual cross-validation folds run in a few seconds each.
+> **Runtime Note:** K-Nearest Neighbors prediction is computationally intensive, scaling at $O(n_{train} \times n_{test} \times d)$ for each test phase, as there is no initial "training" phase. On a standard machine, the comprehensive 30-step k-sweep takes roughly 1–2 minutes (about 3–4 seconds per value of `k`). Individual cross-validation folds run in a few seconds each.
 
 ---
 
@@ -208,11 +208,11 @@ Visualizing the data and model performance was a core component of our project. 
 
 ## Key Takeaways & Future Work
 
-- **`PageValues` is the Dominant Signal:** Even a naive heuristic (`PageValues > 0` = purchase) strongly outperforms the majority-class baseline on the F1 metric. Our KNN model improves upon this by taking the entire feature space into account, reducing false positives.
+- **A Single-Feature Rule Beats Our kNN:** A one-line heuristic — predict "purchase" when `PageValues` exceeds the training mean — scores **F1 0.6819**, beating our full kNN's **0.4722** (and winning on recall, 0.7428 vs 0.3570). The likely cause: kNN spreads its distance calculation across all 28 standardized features — including redundant pairs (BounceRates/ExitRates) and noisy one-hot columns — which *dilutes* the dominant `PageValues` signal instead of amplifying it. kNN's only edge is marginally higher precision (0.6974 vs 0.6303). This is a humbling but instructive result: when one feature carries most of the signal, a distance-based model over many features can underperform a simple threshold.
 - **Tuning `k` Manages the Precision/Recall Trade-off:** 
-  - Small values of `k` (≤3) aggressively capture actual purchases (high Recall) but generate many False Positives (low Precision). 
+  - Small values of `k` (e.g., k = 1) maximize Recall but yield low Precision (overfitting to individual training points). 
   - Large values of `k` (≥20) maximize Accuracy and Precision, but the model becomes too conservative, causing Recall to collapse. 
-  - We found `k = 7` to be the optimal sweet spot, sitting perfectly near the F1-Score peak.
+  - F1 actually peaks at **k = 3** (0.4892); we selected **k = 7** (F1 0.4722) because it delivers far higher Precision (0.6974 vs 0.5962) at only a marginal F1 cost — the right call for a precision-oriented model.
 - **The Challenge of Class Imbalance:** Because only ~15.5% of the data represents actual buyers, the model naturally biases towards "no-purchase". Even at optimal settings, it correctly identifies only ~36% of actual buyers. 
 - **Future Enhancements:** Future iterations of this project could address this recall bottleneck by implementing explicit class weighting within the distance metric, applying synthetic data generation (e.g., SMOTE), or moving to a threshold-tuned probabilistic classification model.
 
