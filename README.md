@@ -89,9 +89,10 @@ The preprocessed dataset features include:
 ├── fig6_visitor_type.png             Conversion rate by visitor type
 ├── fig7_k_tuning.png                 Metric curves over k
 ├── fig8_final_confusion_matrix.png   Final test-set confusion matrix
+├── fig9_sample_prediction.png        Worked example: one session classified by its 7 neighbors
 │
 ├── Capstone_Report.docx / .pdf       Full written report
-├── Capstone_Presentation.pptx        Slide deck
+├── Capstone_Presentation.pptx / .pdf Slide deck (editable + exported)
 ├── Findings.docx                     Detailed findings write-up
 └── Findings(1)Draft.pdf              Earlier draft of findings
 ```
@@ -194,13 +195,14 @@ Visualizing the data and model performance was a core component of our project. 
 | [fig6_visitor_type.png](fig6_visitor_type.png) | Sessions and conversion rates comparing Returning vs. New Visitors. |
 | [fig7_k_tuning.png](fig7_k_tuning.png) | Line plots tracking Accuracy, Precision, Recall, and F1 across `k = 1..30`. |
 | [fig8_final_confusion_matrix.png](fig8_final_confusion_matrix.png) | Heatmap of the Test-set confusion matrix for the final deployed model (k=7). |
+| [fig9_sample_prediction.png](fig9_sample_prediction.png) | A worked example classifying one new session by its 7 nearest neighbors (5 buyers vs. 2 non-buyers → Purchase), shown on the two most predictive features. |
 
 ---
 
 ## Project Deliverables
 
 - [Capstone_Report.pdf](Capstone_Report.pdf) / [Capstone_Report.docx](Capstone_Report.docx) — The full written report detailing our approach, literature review, and comprehensive findings.
-- [Capstone_Presentation.pptx](Capstone_Presentation.pptx) — Slide deck for the final project defense.
+- [Capstone_Presentation.pptx](Capstone_Presentation.pptx) / [Capstone_Presentation.pdf](Capstone_Presentation.pdf) — Slide deck for the final project defense (editable PowerPoint and exported PDF).
 - [Findings.docx](Findings.docx) — An extended, detailed write-up of specific analytical findings.
 - [Findings(1)Draft.pdf](Findings(1)Draft.pdf) — Earlier draft version of the findings document.
 
